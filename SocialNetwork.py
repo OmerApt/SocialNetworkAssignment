@@ -1,3 +1,7 @@
+
+'''we need to add here singleton'''
+
+
 def SocialNetwork(name):
     return
 

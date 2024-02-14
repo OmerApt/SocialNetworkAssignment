@@ -1,4 +1,8 @@
 class User:
+    notifications={}
+    followers={}
+    posts_num = 0
+
     def follow(self,name):
         return
     def unfollow(self,name):
