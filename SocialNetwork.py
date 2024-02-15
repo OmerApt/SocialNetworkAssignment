@@ -5,17 +5,16 @@ class SocialNetwork:
     name = ""
     _instance = None
 
-    def __init__(self, name):
-        self.name = name
 
 
-    @classmethod
-    def get_instance(cls):
+
+
+    def __new__(cls, name):
         if cls._instance is None:
-            cls._instance = cls()
+            cls._instance = super.__new__(cls)
+            cls._instance = name
+            # create fields for class
         return cls._instance
-
-
 
     def sign_up(self, name, password):
         v = ""
