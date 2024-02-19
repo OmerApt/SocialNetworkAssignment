@@ -1,62 +1,53 @@
-from abc import ABC, abstractmethod
-
 import matplotlib.pyplot as plt
-
 from Users import User
 from builtins import list
+from enum import Enum
+from SocialNetwork import SocialNetwork
 
 
-class PostsFactory(ABC):
-    @abstractmethod
-    def create_post(self, *args):
-        pass
-
-    def make_post(self, *args):
-        return self.create_post(*args)
+class Post_type(Enum):
+    text = "Text"
+    image = "Image"
+    sale = "Sale"
 
 
-class TextPostFactory(PostsFactory):
-
-    def create_post(self, *args):
-        usr = args[0]
-        text = args[1]
-        return TextPost(owner=usr, content=text)
-
-
-class ImagePostFactory(PostsFactory):
-    def create_post(self, *args):
-        return ImagePost(owner=args[0], image_url=args[0])
-
-
-class SalePostFactory(PostsFactory):
-    def create_post(self, *args):
-        owner = args[0]
-        text = args[1]
-        price = args[2]
-        location = args[3]
-        return SalePost(owner, text, price, location)
+class PostsFactory:
+    def create_post(self, post_type, *args):
+        if post_type == Post_type.text:
+            return TextPost(*args)
+        elif post_type == Post_type.image:
+            return ImagePost(*args)
+        elif post_type == Post_type.sale:
+            return SalePost(*args)
 
 
 class Post:
     likes = set()
     comments = list()
     owner = ''
+    _net = SocialNetwork("")
 
     def __init__(self, owner):
         self.owner = owner
 
-    def notify(self):
-        return
-
     def like(self, user):
-        self.likes.add(user)
-        if self.owner != user:
-            self.owner.notify()
+        if self._net.is_online(user):
+            self.likes.add(user)
+            if self.owner != user:
+                notification_message = f"{user.name} liked your post"
+                self.owner.update(notification_message)
         return
 
     def comment(self, user, desc):
-        self.comments.append((user, desc))
+        if self._net.is_online(user):
+            self.comments.append((user, desc))
+            if self.owner != user:
+                notification_message= f" commented on your post: {desc}"
+                self.owner.update(notification_message)
         return
+
+    def __post_as_string(self):
+        pass
 
     def print(self):
         pass
@@ -70,7 +61,10 @@ class TextPost(Post):
         self.content = content
 
     def print(self):
-        print(self.owner + " published a post:\n" + self.content)
+        print(self.__post_as_string())
+
+    def __post_as_string(self):
+        return self.owner + " published a post:\n" + self.content
 
 
 class ImagePost(Post):
@@ -79,6 +73,8 @@ class ImagePost(Post):
     def __init__(self, owner, image_url):
         super().__init__(owner)
         self.image_url = image_url
+        msg = ""
+        owner.notify(msg)
 
     def display(self):
         try:
@@ -87,9 +83,11 @@ class ImagePost(Post):
         except FileNotFoundError:
             print("No image found")
         return
-
     def print(self):
-        print(self.owner + " posted a picture")
+        print(self.__post_as_string())
+
+    def __post_as_string(self):
+        return self.owner + " posted a picture"
 
 
 class SalePost(Post):
@@ -105,10 +103,14 @@ class SalePost(Post):
         self.price = float(price)
         self.location = location
         self.is_sold = False
+        self.owner.notify(self.__post_as_string())
 
-    def discount(self, amountOfDiscount, password):
+    def discount(self, amount_of_discount, password):
         if self.owner.correct_password(password):
-            self.price = self.price / amountOfDiscount
+            self.price = self.price / amount_of_discount
+            msg = f"Discount on {self.owner.name} product! the new price is: {self.price}"
+            print(msg)
+            self.owner.notify(msg)
         return self
 
     def sold(self, password):
@@ -119,6 +121,11 @@ class SalePost(Post):
         return
 
     def print(self):
-        soldtext = "Sold! " if self.is_sold else "For sale!"
-        print(self.owner.name + " posted a product for sale:\n")
-        print(f"{soldtext} {self.text}, price: {self.price}, pickup from {self.location}\n")
+        sold_text = "Sold! " if self.is_sold else "For sale!"
+        print(self.owner.name + " posted a product for sale:")
+        print(f"{sold_text} {self.text}, price: {self.price}, pickup from {self.location}")
+
+    def __post_as_string(self):
+        sold_text = "Sold! " if self.is_sold else "For sale!"
+        msg = f"{self.owner.name} posted a product for sale:\n"
+        msg = msg + f"{sold_text} {self.text}, price: {self.price}, pickup from {self.location}"
