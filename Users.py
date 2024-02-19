@@ -1,17 +1,16 @@
 from abc import ABC, abstractmethod
 
-from Posts import Post, Post_type, PostsFactory
-
-from SocialNetwork import SocialNetwork
+# from Posts import Post
+import Posts
+import SocialNetwork
 
 
 class User:
     def __init__(self, name):
-        self.followers = set()
+        self.followers = list()
         self.notifications = list()
         self.name = name
         self.posts_num = 0
-        self._net = SocialNetwork("")
 
     def __eq__(self, other):
         return self.name == other.name
@@ -19,36 +18,40 @@ class User:
     def __cmp__(self, other):
         return self.name == other.name
 
-    def notify(self,msg):
+    def notify(self, msg,to_print):
         for follower in self.followers:
-            follower.update(msg)
+            follower.update(msg, to_print)
         return
 
-    def update(self,message):
+    def update(self, message, to_print):
         notification = f"notification to {self.name}: {message}"
         self.notifications.append(notification)
+        if to_print:
+            print(notification)
 
     def add_follower(self, follower):
-        self.followers.add(follower)
+        if follower not in self.followers:
+            self.followers.append(follower)
 
     def remove_follower(self, follower):
-        self.followers.remove(follower)
+        if follower in self.followers:
+            self.followers.remove(follower)
 
     def follow(self, followee):
         followee.add_follower(self)
-        s = self.name + "started following " + followee.name
+        s = self.name + " started following " + followee.name
         print(s)
         return
 
     def unfollow(self, followee):
         followee.remove_follower(self)
-        s = followee.name + "unfollowed " + self.name
+        s = followee.name + " unfollowed " + self.name
         print(s)
         return
 
-    def publish_post(self, type, *args):
-        pf = PostsFactory()
-        p = pf.create_post(type, args)
+    def publish_post(self, post_type, *args):
+        pf = Posts.PostsFactory()
+        p = pf.create_post(post_type, self, *args)
         # self.notify()
         self.posts_num += 1
         return p
@@ -58,7 +61,8 @@ class User:
             print(notification)
 
     def correct_password(self, password):
-        psw = self._net.allUsers.get(__key=self)
+        net = SocialNetwork.SocialNetwork("")
+        psw = net.allUsers.get(self.name)[1]
         return psw == password
 
 
