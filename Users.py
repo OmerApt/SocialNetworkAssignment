@@ -54,6 +54,7 @@ class User:
         p = pf.create_post(post_type, self, *args)
         # self.notify()
         self.posts_num += 1
+        # print()
         return p
 
     def print_notifications(self):

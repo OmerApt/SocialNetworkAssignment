@@ -69,7 +69,7 @@ class TextPost(Post):
         print(self.__post_as_string())
 
     def __post_as_string(self):
-        return f"{self.owner.name} published a post:\n{self.content}"
+        return f"{self.owner.name} published a post:\n{self.content}\n"
 
     def __str__(self):
         return self.__post_as_string()
@@ -96,7 +96,7 @@ class ImagePost(Post):
         print(self.__post_as_string())
 
     def __post_as_string(self):
-        return f"{self.owner.name} posted a picture"
+        return f"{self.owner.name} posted a picture\n"
     def __str__(self):
         return self.__post_as_string()
 
@@ -129,8 +129,8 @@ class SalePost(Post):
     def sold(self, password):
         if self.owner.correct_password(password):
             self.is_sold = True
-            print(f"{self.owner.name}'s product is sold \n")
-
+            print(f"{self.owner.name}'s product is sold")
+            print()
         return
 
     def print(self):
@@ -143,7 +143,7 @@ class SalePost(Post):
         return self.__post_as_string()
 
     def __post_as_string(self):
-        sold_text = "Sold! " if self.is_sold else "For sale!"
+        sold_text = "Sold!" if self.is_sold else "For sale!"
         msg = f"{self.owner.name} posted a product for sale:\n"
-        msg = msg + f"{sold_text} {self.text}, price: {self.price}, pickup from {self.location}"
+        msg = msg + f"{sold_text} {self.text}, price: {self.price}, pickup from: {self.location}\n"
         return msg

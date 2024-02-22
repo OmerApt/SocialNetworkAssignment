@@ -12,6 +12,7 @@ class SocialNetwork(object):
             cls._instance = super().__new__(cls)
             cls._instance.name = name
             cls._instance.logged_in = list()
+            print(f"The social network {cls._instance.name} was created!")
             # create fields for class
         return cls._instance
 
@@ -47,6 +48,7 @@ class SocialNetwork(object):
             if usr_password == password:
                 if name not in self.logged_in:
                     self.logged_in.append(name)
+                    pri
 
     def log_out(self, name):
         if name in self.logged_in:
