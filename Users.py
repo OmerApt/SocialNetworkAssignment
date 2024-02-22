@@ -1,11 +1,20 @@
 from abc import ABC, abstractmethod
 
-# from Posts import Post
+# Importing necessary modules
 import Posts
 import SocialNetwork
 
 
 class User:
+    """
+    Represents a user in the social network.
+
+    Attributes:
+        name (str): The name of the user.
+        followers (list): A list of users who follow this user.
+        notifications (list): A list of notifications received by the user.
+        posts_num (int): The number of posts published by the user.
+    """
     def __init__(self, name):
         self.followers = list()
         self.notifications = list()
@@ -18,12 +27,38 @@ class User:
     def __cmp__(self, other):
         return self.name == other.name
 
-    def notify(self, action, message):
+    def notify(self, action: str, message: str):
+        """
+        Notifies followers about a user action.
+
+        This method acts as the subject (observable) in the Observer Pattern.
+        It broadcasts notifications to all followers (observers) when the user performs an action
+        such as posting, liking, or commenting.
+
+        Args:
+            action (str): The type of action (e.g., post, like, comment).
+            message (str): The message to be notified.
+        """
+
         for follower in self.followers:
             follower.update(action, self, message)
         return
 
-    def update(self, action, sender, msg):
+    def update(self, action: str, sender, msg: str):
+        """
+        Update user with notifications based on actions from others (e.g., post, like, comment).
+
+        This method acts as the observer's callback in response to notifications.
+        It allows followers (observers) to react accordingly to actions performed by others,
+        such as receiving new posts, likes, or comments.
+
+        Args:
+            :param action :Type of action.
+            :param sender : User who initiated the action.
+            :param msg : Message associated with the action.
+
+        """
+
         notification = ""
         if action == "Post":
             notification = f"{sender.name} has a new post"
@@ -57,6 +92,16 @@ class User:
         return
 
     def publish_post(self, post_type, *args):
+        """
+        Publish a post by creating an instance of the specified post type.
+
+        Args:
+            post_type (str): Type of the post.
+            *args: Additional arguments required for post creation.
+
+        Returns:
+            Post: The created post object.
+        """
         p = Posts.PostsFactory.create_post(post_type, self, *args)
         # self.notify()
         self.posts_num += 1
@@ -69,6 +114,16 @@ class User:
             print(notification)
 
     def correct_password(self, password):
+        """
+        Check if the provided password is correct for the user.
+
+        Args:
+            password (str): Password to be checked.
+
+        Returns:
+            bool: True if the password is correct, False otherwise.
+        """
+
         net = SocialNetwork.SocialNetwork("")
         psw = net.allUsers.get(self.name)[1]
         return psw == password
@@ -82,4 +137,10 @@ class Member(ABC):
 
     @abstractmethod
     def update(self, newsletter):
+        """
+        Abstract method for updating members with newsletters.
+
+        Args:
+            newsletter (str): The newsletter to be updated with.
+        """
         pass

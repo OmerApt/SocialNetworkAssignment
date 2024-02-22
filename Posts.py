@@ -3,7 +3,6 @@ from builtins import list
 from enum import Enum
 
 import SocialNetwork
-# import Users
 
 
 class PostType(Enum):
@@ -11,22 +10,27 @@ class PostType(Enum):
     IMAGE = "Image"
     SALE = "Sale"
 
-    """
-        Factory method to create different types of posts based on the given type.
-
-        Args:
-            p_type (str): Type of the post.
-            owner (object): Owner of the post.
-            *args: Additional arguments based on the post type.
-
-        Returns:
-            Post: An instance of the corresponding post type.
-        """
-
 
 class PostsFactory:
+    """
+    A factory class for creating posts.
+    Contains create_post as its creation method.
+
+    """
+
     @staticmethod
     def create_post(p_type: str, owner, *args):
+        """
+            A static factory method to create different types of posts based on the given type.
+
+            Args:
+                p_type (str): Type of the post. Its options are "Text", "Image" and "Sale"
+                owner (User): Owner of the post.
+                *args: Additional arguments based on the post type.
+
+            Returns:
+                Post: An instance of the corresponding post type.
+        """
         if p_type == PostType.TEXT.value:
             return TextPost(owner, *args)
         elif p_type == PostType.IMAGE.value:
@@ -40,22 +44,21 @@ class Post:
     comments = list()
     owner = ''
 
-    """
-           Initialize a post object.
-
-           Args:
-               owner (object): The owner of the post.
-           """
     def __init__(self, owner):
+        """
+            Initialize a post object.
+             Args:
+                   owner (User): The owner of the post.
+        """
         self.owner = owner
 
-    """
+    def like(self, user):
+        """
            Method to handle liking a post.
 
            Args:
                user (object): The user who is liking the post.
-           """
-    def like(self, user):
+        """
         net = SocialNetwork.SocialNetwork("")
         if net.is_online(user.name):
             self.likes.add(user.name)
@@ -65,14 +68,14 @@ class Post:
                 self.owner.update("Like", user, notification_message)
         return
 
-    """
-            Method to handle commenting on a post.
-
-            Args:
-                user (object): The user who is commenting on the post.
-                desc (str): The comment content.
-            """
     def comment(self, user, desc):
+        """
+        Method to handle commenting on a post.
+
+        Args:
+            user (object): The user who is commenting on the post.
+            desc (str): The comment content.
+        """
         net = SocialNetwork.SocialNetwork("")
         if net.is_online(user.name):
             self.comments.append((user, desc))
@@ -80,19 +83,11 @@ class Post:
                 self.owner.update("Comment", user, desc)
         return
 
-    """
-            Generate a string representation of the post.
-
-            Returns:
-                str: The string representation of the post.
-            """
-
+    # Generate a string representation of the post.
     def __post_as_string(self):
         pass
 
-    """
-           Print the post.
-           """
+    # print the post
     def print(self):
         pass
 
@@ -131,7 +126,6 @@ class ImagePost(Post):
 
     def display(self):
         try:
-            # plt.imshow(self.image_url)
             print("Shows picture")
         except FileNotFoundError:
             print("No image found")
