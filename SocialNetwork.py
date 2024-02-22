@@ -106,13 +106,10 @@ class SocialNetwork(object):
 
     # Return a string representation of the social network.
     def __str__(self):
-        prt = ""
-        num = 0
+        prt = f"{self.name} social network:"
         for name, unp in self.allUsers.items():
-            if num != 0:
-                prt += "\n"
-            else:
-                num = 1
+            prt += "\n"
             user = unp[0]
             prt += f"{user}"
+        prt +="\n"
         return prt
