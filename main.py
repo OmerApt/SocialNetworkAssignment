@@ -1,5 +1,4 @@
 from SocialNetwork import SocialNetwork
-import matplotlib.pyplot as plt
 
 
 def main():

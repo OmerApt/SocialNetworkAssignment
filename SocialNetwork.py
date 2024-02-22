@@ -1,4 +1,3 @@
-'''we need to add here singleton'''
 import Users
 
 
@@ -48,8 +47,21 @@ class SocialNetwork(object):
             if usr_password == password:
                 if name not in self.logged_in:
                     self.logged_in.append(name)
-                    pri
+                    print(f"{name} connected")
 
     def log_out(self, name):
         if name in self.logged_in:
             self.logged_in.remove(name)
+            print(f"{name} disconnected")
+
+    def __str__(self):
+        prt = ""
+        num = 0
+        for name, unp in self.allUsers.items():
+            if num != 0:
+                prt += "\n"
+            else:
+                num = 1
+            user = unp[0]
+            prt += f"{user}"
+        return prt

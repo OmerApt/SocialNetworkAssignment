@@ -18,16 +18,23 @@ class User:
     def __cmp__(self, other):
         return self.name == other.name
 
-    def notify(self, msg,to_print):
+    def notify(self, action, message):
         for follower in self.followers:
-            follower.update(msg, to_print)
+            follower.update(action, self, message)
         return
 
-    def update(self, message, to_print):
-        notification = f"notification to {self.name}: {message}"
+    def update(self, action, sender, msg):
+        notification = ""
+        if action == "Post":
+            notification = f"{sender.name} has a new post"
+            # print(f"notification to {self.name}: {notification}")
+        elif action == "Like":
+            notification = f"{sender.name} liked your post"
+            print(f"notification to {self.name}: {notification}")
+        elif action == "Comment":
+            notification = f"{sender.name} commented on your post"
+            print(f"notification to {self.name}: {notification}: {msg}")
         self.notifications.append(notification)
-        if to_print:
-            print(notification)
 
     def add_follower(self, follower):
         if follower not in self.followers:
@@ -45,19 +52,19 @@ class User:
 
     def unfollow(self, followee):
         followee.remove_follower(self)
-        s = followee.name + " unfollowed " + self.name
+        s = self.name + " unfollowed " + followee.name
         print(s)
         return
 
     def publish_post(self, post_type, *args):
-        pf = Posts.PostsFactory()
-        p = pf.create_post(post_type, self, *args)
+        p = Posts.PostsFactory.create_post(post_type, self, *args)
         # self.notify()
         self.posts_num += 1
         # print()
         return p
 
     def print_notifications(self):
+        print(f"{self.name}'s notifications:")
         for notification in self.notifications:
             print(notification)
 
@@ -65,6 +72,10 @@ class User:
         net = SocialNetwork.SocialNetwork("")
         psw = net.allUsers.get(self.name)[1]
         return psw == password
+
+    def __str__(self):
+        return (f"User name: {self.name}, Number of posts: {self.posts_num}, "
+                f"Number of followers: {len(self.followers)}")
 
 
 class Member(ABC):

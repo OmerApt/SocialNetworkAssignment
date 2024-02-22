@@ -1,11 +1,9 @@
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from builtins import list
 from enum import Enum
 
 import SocialNetwork
-# from SocialNetwork import SocialNetwork
-import SocialNetwork as sn
-import Users
+# import Users
 
 
 class PostType(Enum):
@@ -13,9 +11,22 @@ class PostType(Enum):
     IMAGE = "Image"
     SALE = "Sale"
 
+    """
+        Factory method to create different types of posts based on the given type.
+
+        Args:
+            p_type (str): Type of the post.
+            owner (object): Owner of the post.
+            *args: Additional arguments based on the post type.
+
+        Returns:
+            Post: An instance of the corresponding post type.
+        """
+
 
 class PostsFactory:
-    def create_post(self, p_type: {str}, owner, *args):
+    @staticmethod
+    def create_post(p_type: str, owner, *args):
         if p_type == PostType.TEXT.value:
             return TextPost(owner, *args)
         elif p_type == PostType.IMAGE.value:
@@ -29,51 +40,85 @@ class Post:
     comments = list()
     owner = ''
 
+    """
+           Initialize a post object.
+
+           Args:
+               owner (object): The owner of the post.
+           """
     def __init__(self, owner):
         self.owner = owner
 
+    """
+           Method to handle liking a post.
+
+           Args:
+               user (object): The user who is liking the post.
+           """
     def like(self, user):
         net = SocialNetwork.SocialNetwork("")
         if net.is_online(user.name):
             self.likes.add(user.name)
             if self.owner != user:
                 notification_message = f"{user.name} liked your post"
-                self.owner.update(notification_message, True)
+                # print(notification_message)
+                self.owner.update("Like", user, notification_message)
         return
 
+    """
+            Method to handle commenting on a post.
+
+            Args:
+                user (object): The user who is commenting on the post.
+                desc (str): The comment content.
+            """
     def comment(self, user, desc):
         net = SocialNetwork.SocialNetwork("")
         if net.is_online(user.name):
             self.comments.append((user, desc))
             if self.owner.name != user.name:
-                notification_message = f"{user.name} commented on your post: {desc}"
-                self.owner.update(notification_message, True)
+                self.owner.update("Comment", user, desc)
         return
+
+    """
+            Generate a string representation of the post.
+
+            Returns:
+                str: The string representation of the post.
+            """
 
     def __post_as_string(self):
         pass
 
+    """
+           Print the post.
+           """
     def print(self):
         pass
 
 
+# Concrete implementation of a Text Post.
 class TextPost(Post):
     content = ""
 
-    def __init__(self, owner,content):
+    def __init__(self, owner, content):
         super().__init__(owner)
         self.content = content
         self.print()
+        msg = self.__post_as_string()
+        owner.notify("Post", msg)
 
     def print(self):
         print(self.__post_as_string())
 
     def __post_as_string(self):
-        return f"{self.owner.name} published a post:\n{self.content}\n"
+        return f"{self.owner.name} published a post:\n\"{self.content}\"\n"
 
     def __str__(self):
         return self.__post_as_string()
 
+
+# Concrete implementation of an Image Post.
 class ImagePost(Post):
     image_url = ""
 
@@ -82,7 +127,7 @@ class ImagePost(Post):
         self.image_url = image_url
         self.print()
         msg = self.__post_as_string()
-        owner.notify(msg, False)
+        owner.notify("Post", msg)
 
     def display(self):
         try:
@@ -97,10 +142,12 @@ class ImagePost(Post):
 
     def __post_as_string(self):
         return f"{self.owner.name} posted a picture\n"
+
     def __str__(self):
         return self.__post_as_string()
 
 
+# Concrete implementation of a Sale Post.
 class SalePost(Post):
     text = ""
     price = 0.0
@@ -116,34 +163,31 @@ class SalePost(Post):
         self.location = location
         self.is_sold = False
         self.print()
-        self.owner.notify(self.__post_as_string(), False)
+        self.owner.notify("Post", self.__post_as_string())
 
     def discount(self, amount_of_discount, password):
         if self.owner.correct_password(password):
-            self.price = self.price * (1-amount_of_discount/100)
+            self.price = self.price * (1 - amount_of_discount / 100)
             msg = f"Discount on {self.owner.name} product! the new price is: {self.price}"
             print(msg)
-            self.owner.notify(msg,False)
+            # self.owner.notify(msg)
         return self
 
     def sold(self, password):
         if self.owner.correct_password(password):
             self.is_sold = True
             print(f"{self.owner.name}'s product is sold")
-            print()
         return
 
     def print(self):
         print(self.__post_as_string())
-        # sold_text = "Sold! " if self.is_sold else "For sale!"
-        # print(self.owner.name + " posted a product for sale:")
-        # print(f"{sold_text} {self.text}, price: {self.price}, pickup from {self.location}")
 
     def __str__(self):
         return self.__post_as_string()
 
     def __post_as_string(self):
         sold_text = "Sold!" if self.is_sold else "For sale!"
+        price_update = self.price if self.is_sold else int(self.price)
         msg = f"{self.owner.name} posted a product for sale:\n"
-        msg = msg + f"{sold_text} {self.text}, price: {self.price}, pickup from: {self.location}\n"
+        msg = msg + f"{sold_text} {self.text}, price: {price_update}, pickup from: {self.location}\n"
         return msg
